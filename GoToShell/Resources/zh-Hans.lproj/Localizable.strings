@@ -1,0 +1,17 @@
+/* Settings View */
+"terminal" = "选择终端";
+"terminal_picker_label" = "使用的终端";
+"startup_command" = "启动命令";
+"startup_command_placeholder" = "打开后执行的命令，可留空";
+"examples" = "示例";
+"none" = "无";
+"save_settings" = "保存设置";
+"show_in_finder" = "添加到 Finder 工具栏";
+"saved" = "已保存";
+"instruction_title" = "使用说明";
+"instruction_text" = "点击\"添加到 Finder 工具栏\"按钮，会自动打开并选中 GoToShellHelper.app。\n\n按住 Command (⌘) 键，将应用拖到 Finder 工具栏即可。";
+"opening_customize_toolbar" = "正在打开…";
+"add_to_toolbar_title" = "添加到 Finder 工具栏";
+"add_to_toolbar_instruction" = "GoToShellHelper.app 已在 Finder 中选中。\n\n添加到 Finder 工具栏的步骤：\n1. 按住 Command (⌘) 键\n2. 将 GoToShellHelper.app 拖到任意 Finder 窗口的工具栏\n3. 松开鼠标放置\n\n之后在任意文件夹点击工具栏图标即可在该位置打开终端。";
+"ok" = "好的";
+

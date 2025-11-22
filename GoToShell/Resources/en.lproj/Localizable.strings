@@ -1,0 +1,17 @@
+/* Settings View */
+"terminal" = "Select Terminal";
+"terminal_picker_label" = "Terminal";
+"startup_command" = "Startup Command";
+"startup_command_placeholder" = "Command to execute after opening, can be left empty";
+"examples" = "Examples";
+"none" = "None";
+"save_settings" = "Save Settings";
+"show_in_finder" = "Add to Finder Toolbar";
+"saved" = "Saved";
+"instruction_title" = "How to Use";
+"instruction_text" = "Click \"Add to Finder Toolbar\" button to open the folder containing GoToShellHelper.app.\n\nHold Command (⌘) key and drag the app to Finder toolbar.";
+"opening_customize_toolbar" = "Opening…";
+"add_to_toolbar_title" = "Add to Finder Toolbar";
+"add_to_toolbar_instruction" = "GoToShellHelper.app is now selected in Finder.\n\nTo add it to Finder toolbar:\n1. Hold Command (⌘) key\n2. Drag GoToShellHelper.app to any Finder window's toolbar\n3. Release to place it\n\nThen click the toolbar icon in any folder to open terminal there.";
+"ok" = "OK";
+
