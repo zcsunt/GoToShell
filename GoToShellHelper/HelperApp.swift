@@ -181,8 +181,8 @@ enum TerminalLauncher {
             openWithNSWorkspace(bundleId: terminal.bundleId, workingDirectory: pathURL)
             
         case .wezterm:
-            // WezTerm 支持通过 open 传递工作目录
-            openWithNSWorkspace(bundleId: terminal.bundleId, workingDirectory: pathURL)
+            // WezTerm: 优先在已有窗口中打开新 tab，如未运行则启动新窗口
+            openWezTermTab(currentPath: currentPath, bundleId: terminal.bundleId, workingDirectory: pathURL)
             
         case .tabby:
             // Tabby 支持通过 open 传递工作目录
@@ -194,6 +194,47 @@ enum TerminalLauncher {
         }
     }
     
+    // WezTerm: 在已有窗口中打开新 tab，如果 WezTerm 未运行则启动新窗口
+    private static func openWezTermTab(currentPath: String, bundleId: String, workingDirectory: URL) {
+        // 检查 WezTerm 是否正在运行
+        let running = NSWorkspace.shared.runningApplications.contains { $0.bundleIdentifier == bundleId }
+
+        if running {
+            // WezTerm 已运行，使用 wezterm cli spawn 在新 tab 中打开
+            let cliPaths = [
+                "/usr/local/bin/wezterm",
+                "/opt/homebrew/bin/wezterm",
+                "/Applications/WezTerm.app/Contents/MacOS/wezterm",
+            ]
+            let cliPath = cliPaths.first { FileManager.default.fileExists(atPath: $0) }
+
+            if let cliPath = cliPath {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: cliPath)
+                process.arguments = ["cli", "spawn", "--cwd", currentPath]
+                let pipe = Pipe()
+                process.standardOutput = pipe
+                process.standardError = Pipe()
+                do {
+                    try process.run()
+                    process.waitUntilExit()
+                    if process.terminationStatus == 0 {
+                        // 激活 WezTerm 窗口
+                        if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleId }) {
+                            app.activate(options: .activateIgnoringOtherApps)
+                        }
+                        return
+                    }
+                } catch {
+                    print("Failed to spawn WezTerm tab: \(error)")
+                }
+            }
+        }
+
+        // 未运行或 cli 失败，回退到启动新窗口
+        openWithNSWorkspace(bundleId: bundleId, workingDirectory: workingDirectory)
+    }
+
     // 使用 NSWorkspace 打开应用并传递工作目录
     private static func openWithNSWorkspace(bundleId: String, workingDirectory: URL) {
         guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleId) else {
