@@ -161,8 +161,8 @@ enum TerminalLauncher {
             _ = AppleScriptRunner.runSync(script)
             
         case .ghostty:
-            // Ghostty 支持直接传递工作目录
-            openWithNSWorkspace(bundleId: terminal.bundleId, workingDirectory: pathURL)
+            // Ghostty: 优先在已有窗口中打开新 tab，如未运行则启动新窗口
+            openGhosttyTab(currentPath: currentPath, bundleId: terminal.bundleId, workingDirectory: pathURL)
             
         case .warp:
             // Warp 支持通过 open 传递工作目录
@@ -194,6 +194,33 @@ enum TerminalLauncher {
         }
     }
     
+    // Ghostty: 在已有窗口中打开新 tab，如果 Ghostty 未运行则启动新窗口
+    private static func openGhosttyTab(currentPath: String, bundleId: String, workingDirectory: URL) {
+        let running = NSWorkspace.shared.runningApplications.contains { $0.bundleIdentifier == bundleId }
+
+        if running {
+            // Ghostty 已运行，通过 AppleScript 新建 tab 并 cd 到目标目录
+            let escapedPath = currentPath
+                .replacingOccurrences(of: "\\", with: "\\\\")
+                .replacingOccurrences(of: "\"", with: "\\\"")
+            let script = """
+            tell application "Ghostty" to activate
+            delay 0.5
+            tell application "System Events" to tell process "Ghostty"
+                keystroke "t" using command down
+            end tell
+            delay 0.5
+            tell application "System Events"
+                keystroke "cd " & quoted form of "\(escapedPath)" & return
+            end tell
+            """
+            _ = AppleScriptRunner.runSync(script)
+        } else {
+            // 未运行，启动新窗口
+            openWithNSWorkspace(bundleId: bundleId, workingDirectory: workingDirectory)
+        }
+    }
+
     // WezTerm: 在已有窗口中打开新 tab，如果 WezTerm 未运行则启动新窗口
     private static func openWezTermTab(currentPath: String, bundleId: String, workingDirectory: URL) {
         // 检查 WezTerm 是否正在运行
