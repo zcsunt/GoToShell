@@ -199,10 +199,11 @@ enum TerminalLauncher {
         let running = NSWorkspace.shared.runningApplications.contains { $0.bundleIdentifier == bundleId }
 
         if running {
-            // Ghostty 已运行，通过 AppleScript 新建 tab 并 cd 到目标目录
-            let escapedPath = currentPath
-                .replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "\"", with: "\\\"")
+            // 将 cd 命令写入临时文件，避免 keystroke 无法输入中文路径
+            let tempFile = "/tmp/.gotoshell_cd"
+            let shellPath = currentPath.replacingOccurrences(of: "'", with: "'\\''")
+            try? "cd '\(shellPath)'".write(toFile: tempFile, atomically: true, encoding: .utf8)
+
             let script = """
             tell application "Ghostty" to activate
             delay 0.5
@@ -211,7 +212,7 @@ enum TerminalLauncher {
             end tell
             delay 0.5
             tell application "System Events"
-                keystroke "cd " & quoted form of "\(escapedPath)" & return
+                keystroke "source /tmp/.gotoshell_cd" & return
             end tell
             """
             _ = AppleScriptRunner.runSync(script)
